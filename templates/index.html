@@ -4,744 +4,1308 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>PneumoScan — AI Chest X-ray Analysis</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:        #070b0f;
-  --bg2:       #0d1117;
-  --bg3:       #161b22;
-  --border:    rgba(255,255,255,0.08);
-  --border2:   rgba(255,255,255,0.14);
-  --text:      #e6edf3;
-  --muted:     #7d8590;
-  --accent:    #58a6ff;
-  --accent2:   #1f6feb;
-  --green:     #2ecc71;
-  --amber:     #f39c12;
-  --orange:    #e67e22;
-  --red:       #e74c3c;
-  --critical:  #ff4757;
-  --mono:      'DM Mono', monospace;
-  --sans:      'DM Sans', sans-serif;
-  --display:   'Syne', sans-serif;
+  --bg:         #0a0e1a;
+  --bg-card:    #0f1525;
+  --bg-card2:   #141929;
+  --bg-hover:   #1a2035;
+  --border:     rgba(255,255,255,0.07);
+  --border2:    rgba(255,255,255,0.12);
+  --border3:    rgba(255,255,255,0.18);
+  --text:       #e8edf5;
+  --text2:      #a8b3c8;
+  --muted:      #5a6580;
+  --blue:       #4f8ef7;
+  --blue2:      #2563eb;
+  --blue-glow:  rgba(79,142,247,0.2);
+  --green:      #22c55e;
+  --green-glow: rgba(34,197,94,0.15);
+  --amber:      #f59e0b;
+  --orange:     #f97316;
+  --red:        #ef4444;
+  --red-glow:   rgba(239,68,68,0.15);
+  --mono:       'JetBrains Mono', monospace;
+  --sans:       'Inter', sans-serif;
+  --radius:     14px;
+  --radius-sm:  8px;
 }
 
 html, body {
-  height: 100%;
+  min-height: 100%;
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1.6;
   overflow-x: hidden;
 }
 
-/* ── GRID BG ── */
+/* ── BACKGROUND ── */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(37,99,235,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(34,197,94,0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
   background-image:
-    linear-gradient(rgba(88,166,255,0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(88,166,255,0.03) 1px, transparent 1px);
-  background-size: 40px 40px;
+    linear-gradient(rgba(79,142,247,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(79,142,247,0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
   pointer-events: none;
   z-index: 0;
 }
 
 /* ── HEADER ── */
 header {
-  position: relative;
-  z-index: 10;
-  padding: 28px 40px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
   display: flex;
   align-items: center;
-  gap: 14px;
+  padding: 0 32px;
+  height: 64px;
+  background: rgba(10,14,26,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  background: rgba(7,11,15,0.9);
-  backdrop-filter: blur(12px);
 }
 
-.logo-icon {
-  width: 38px; height: 38px;
-  background: linear-gradient(135deg, var(--accent2), var(--accent));
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo {
+  width: 36px; height: 36px;
+  background: linear-gradient(135deg, var(--blue2), var(--blue));
   border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  box-shadow: 0 0 16px var(--blue-glow);
   flex-shrink: 0;
 }
 
 .logo-text {
-  font-family: var(--display);
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -0.5px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--text);
 }
 
-.logo-text span { color: var(--accent); }
+.logo-text span { color: var(--blue); }
 
-.header-badge {
-  margin-left: auto;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--muted);
-  border: 1px solid var(--border2);
-  padding: 4px 10px;
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.nav-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
   border-radius: 20px;
-  letter-spacing: 0.5px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid transparent;
+  cursor: default;
 }
 
-/* ── MAIN LAYOUT ── */
-main {
+.nav-pill.active {
+  background: rgba(79,142,247,0.1);
+  border-color: rgba(79,142,247,0.25);
+  color: var(--blue);
+}
+
+.nav-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.status-chip {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.2);
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--green);
+}
+
+.status-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  animation: breathe 2.5s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.8); }
+}
+
+/* ── LAYOUT ── */
+.page {
   position: relative;
   z-index: 1;
-  max-width: 1300px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 48px 40px;
+  padding: 36px 32px 64px;
 }
 
 /* ── HERO ── */
 .hero {
   text-align: center;
-  margin-bottom: 52px;
+  padding: 12px 0 44px;
+}
+
+.hero-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  background: rgba(79,142,247,0.08);
+  border: 1px solid rgba(79,142,247,0.2);
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: var(--mono);
+  color: var(--blue);
+  margin-bottom: 20px;
+  letter-spacing: 0.3px;
 }
 
 .hero h1 {
-  font-family: var(--display);
-  font-size: clamp(32px, 5vw, 56px);
+  font-size: clamp(28px, 4.5vw, 50px);
   font-weight: 800;
   line-height: 1.1;
   letter-spacing: -1.5px;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
+  color: var(--text);
 }
 
-.hero h1 em {
-  font-style: normal;
-  background: linear-gradient(90deg, var(--accent), #a5d6ff);
+.hero h1 .gradient {
+  background: linear-gradient(135deg, var(--blue) 0%, #93c5fd 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
 
 .hero p {
-  color: var(--muted);
-  font-size: 16px;
-  max-width: 520px;
-  margin: 0 auto;
-  font-weight: 300;
+  color: var(--text2);
+  font-size: 15px;
+  max-width: 500px;
+  margin: 0 auto 28px;
+  font-weight: 400;
+  line-height: 1.7;
 }
 
-/* ── STATS ROW ── */
-.stats {
+.hero-stats {
   display: flex;
   justify-content: center;
-  gap: 32px;
-  margin-top: 28px;
+  gap: 0;
   flex-wrap: wrap;
 }
 
-.stat {
+.hero-stat {
+  padding: 8px 24px;
+  border-right: 1px solid var(--border2);
+  text-align: center;
+}
+
+.hero-stat:last-child { border-right: none; }
+
+.hero-stat-val {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: -0.5px;
+  font-family: var(--mono);
+}
+
+.hero-stat-label {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 2px;
+  letter-spacing: 0.3px;
+}
+
+/* ── MAIN PANEL ── */
+.main-panel {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 960px) {
+  .main-panel { grid-template-columns: 1fr; }
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-family: var(--mono);
-  font-size: 12px;
-  color: var(--muted);
+  gap: 10px;
 }
 
-.stat-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--green);
-  box-shadow: 0 0 6px var(--green);
-  animation: pulse 2s ease-in-out infinite;
+.card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+  letter-spacing: 0.2px;
 }
 
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
+.card-icon {
+  font-size: 15px;
 }
 
-/* ── UPLOAD ZONE ── */
-.upload-section {
-  margin-bottom: 52px;
-}
+.card-body { padding: 20px; }
 
+/* ── UPLOAD ── */
 .drop-zone {
   border: 2px dashed var(--border2);
-  border-radius: 20px;
-  padding: 60px 40px;
+  border-radius: var(--radius);
+  padding: 52px 32px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.25s ease;
-  background: var(--bg2);
+  transition: all 0.25s;
+  background: rgba(79,142,247,0.02);
   position: relative;
-  overflow: hidden;
 }
 
 .drop-zone::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 0%, rgba(88,166,255,0.06) 0%, transparent 70%);
+  border-radius: calc(var(--radius) - 2px);
+  background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(79,142,247,0.05) 0%, transparent 100%);
   pointer-events: none;
 }
 
-.drop-zone:hover,
-.drop-zone.drag-over {
-  border-color: var(--accent);
-  background: rgba(31,111,235,0.06);
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--blue);
+  background: rgba(79,142,247,0.06);
   transform: translateY(-2px);
 }
 
-.upload-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-  display: block;
-  filter: grayscale(0.3);
+.upload-icon-wrap {
+  width: 64px; height: 64px;
+  margin: 0 auto 18px;
+  background: rgba(79,142,247,0.1);
+  border: 1px solid rgba(79,142,247,0.2);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  transition: all 0.25s;
+}
+
+.drop-zone:hover .upload-icon-wrap {
+  background: rgba(79,142,247,0.18);
+  box-shadow: 0 0 24px var(--blue-glow);
 }
 
 .drop-zone h3 {
-  font-family: var(--display);
-  font-size: 20px;
-  font-weight: 700;
-  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text);
 }
 
 .drop-zone p {
+  font-size: 13px;
   color: var(--muted);
-  font-size: 14px;
+  margin-bottom: 20px;
 }
 
 .browse-btn {
-  display: inline-block;
-  margin-top: 20px;
-  padding: 10px 24px;
-  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 22px;
+  background: linear-gradient(135deg, var(--blue2), var(--blue));
   color: white;
-  border-radius: 8px;
-  font-weight: 500;
-  font-size: 14px;
-  cursor: pointer;
-  transition: opacity 0.2s;
   border: none;
+  border-radius: var(--radius-sm);
   font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.3);
 }
 
-.browse-btn:hover { opacity: 0.85; }
+.browse-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(37,99,235,0.4);
+}
 
 #file-input { display: none; }
 
-/* ── PREVIEW ── */
-#preview-section {
-  display: none;
-  margin-top: 24px;
+/* ── FORMAT BADGES ── */
+.format-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  flex-wrap: wrap;
 }
 
-.preview-card {
-  background: var(--bg2);
+.fmt-badge {
+  padding: 3px 10px;
+  background: var(--bg-card2);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px 24px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--muted);
+}
+
+/* ── PREVIEW ── */
+#preview-section { display: none; margin-top: 16px; }
+
+.preview-card {
+  background: var(--bg-card2);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  padding: 14px 16px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 14px;
 }
 
 .preview-thumb {
-  width: 72px; height: 72px;
-  border-radius: 10px;
+  width: 56px; height: 56px;
+  border-radius: 8px;
   object-fit: cover;
   border: 1px solid var(--border2);
   flex-shrink: 0;
 }
 
-.preview-info { flex: 1; }
-.preview-name { font-weight: 500; font-size: 15px; margin-bottom: 4px; }
-.preview-meta { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+.preview-info { flex: 1; min-width: 0; }
 
-.analyze-btn {
-  padding: 12px 32px;
-  background: linear-gradient(135deg, var(--accent2), #388bfd);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-family: var(--display);
-  font-size: 15px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-  letter-spacing: 0.3px;
+.preview-name {
+  font-weight: 600;
+  font-size: 13px;
   white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
 }
 
-.analyze-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(88,166,255,0.25); }
-.analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.preview-meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.analyze-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--blue2), var(--blue));
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.3);
+}
+
+.analyze-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(37,99,235,0.4); }
+.analyze-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; box-shadow: none; }
+
+/* ── ERROR ── */
+#error-box {
+  display: none;
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.25);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  color: #fca5a5;
+  font-size: 13px;
+  margin-top: 12px;
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── HOW IT WORKS ── */
+.steps {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.step-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.step-item:last-child { border-bottom: none; }
+
+.step-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(79,142,247,0.1);
+  border: 1px solid rgba(79,142,247,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--mono);
+  color: var(--blue);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.step-content h4 {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 3px;
+  color: var(--text);
+}
+
+.step-content p {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+/* ── MODEL INFO ── */
+.model-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 16px 20px;
+}
+
+.model-badge {
+  padding: 5px 12px;
+  background: var(--bg-card2);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--text2);
+}
+
+.model-badge.highlight {
+  background: rgba(79,142,247,0.08);
+  border-color: rgba(79,142,247,0.25);
+  color: var(--blue);
+}
 
 /* ── LOADING ── */
 #loading {
   display: none;
-  text-align: center;
-  padding: 60px 0;
+  grid-column: 1 / -1;
 }
 
-.spinner {
-  width: 48px; height: 48px;
-  border: 3px solid var(--border2);
-  border-top-color: var(--accent);
+.loading-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 48px 32px;
+  text-align: center;
+}
+
+.spinner-wrap {
+  width: 64px; height: 64px;
+  margin: 0 auto 24px;
+  position: relative;
+}
+
+.spinner-ring {
+  width: 100%; height: 100%;
+  border: 2px solid var(--border2);
+  border-top-color: var(--blue);
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  margin: 0 auto 20px;
+  animation: spin 0.9s linear infinite;
+}
+
+.spinner-inner {
+  position: absolute;
+  inset: 8px;
+  border: 2px solid var(--border);
+  border-bottom-color: rgba(79,142,247,0.4);
+  border-radius: 50%;
+  animation: spin 1.4s linear infinite reverse;
 }
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.loading-steps {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  align-items: center;
-  margin-top: 16px;
+.loading-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
 }
 
-.loading-step {
-  font-family: var(--mono);
-  font-size: 12px;
+.loading-sub {
+  font-size: 13px;
   color: var(--muted);
-  opacity: 0;
-  animation: fadeIn 0.5s ease forwards;
-}
-
-.loading-step.active { color: var(--accent); opacity: 1; }
-
-@keyframes fadeIn { to { opacity: 1; } }
-
-/* ── RESULTS ── */
-#results { display: none; }
-
-.results-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
   margin-bottom: 32px;
 }
 
-.results-header h2 {
-  font-family: var(--display);
-  font-size: 26px;
-  font-weight: 800;
+.pipeline-steps {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-.verdict-badge {
+.pipe-step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+  padding-top: 36px;
+}
+
+.pipe-step::before {
+  content: '';
+  position: absolute;
+  top: 13px; left: 50%;
+  width: 100%;
+  height: 1px;
+  background: var(--border2);
+}
+
+.pipe-step:first-child::before { width: 50%; left: 50%; }
+.pipe-step:last-child::before  { width: 50%; }
+
+.pipe-dot {
+  position: absolute;
+  top: 6px; left: 50%;
+  transform: translateX(-50%);
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--border2);
+  background: var(--bg-card);
+  transition: all 0.4s;
+  z-index: 1;
+}
+
+.pipe-step.active .pipe-dot {
+  border-color: var(--blue);
+  background: var(--blue);
+  box-shadow: 0 0 12px var(--blue-glow);
+}
+
+.pipe-step.done .pipe-dot {
+  border-color: var(--green);
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green-glow);
+}
+
+.pipe-label {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--mono);
+  transition: color 0.3s;
+}
+
+.pipe-step.active .pipe-label { color: var(--blue); }
+.pipe-step.done .pipe-label   { color: var(--green); }
+
+/* ── RESULTS FULL WIDTH ── */
+#results {
+  display: none;
+  grid-column: 1 / -1;
+}
+
+.results-top {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.results-top h2 {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.verdict {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 6px 16px;
   border-radius: 20px;
-  font-family: var(--mono);
   font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.5px;
+  font-weight: 600;
+  font-family: var(--mono);
+  letter-spacing: 0.3px;
 }
 
-.verdict-badge.NORMAL    { background: rgba(46,204,113,0.15); color: var(--green); border: 1px solid rgba(46,204,113,0.3); }
-.verdict-badge.PNEUMONIA { background: rgba(231,76,60,0.15);  color: var(--red);   border: 1px solid rgba(231,76,60,0.3); }
+.verdict.NORMAL    { background: rgba(34,197,94,0.1);  border: 1px solid rgba(34,197,94,0.3);  color: var(--green); }
+.verdict.PNEUMONIA { background: rgba(239,68,68,0.1);  border: 1px solid rgba(239,68,68,0.3);  color: var(--red); }
 
-/* ── IMAGE GRID ── */
-.image-grid {
+/* ── RESULTS GRID ── */
+.results-body {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, 1fr) 1.2fr;
   gap: 16px;
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
-@media (max-width: 900px) {
-  .image-grid { grid-template-columns: repeat(2, 1fr); }
+@media (max-width: 1100px) {
+  .results-body {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .results-sidebar { grid-column: 1 / -1; }
 }
 
-.image-card {
-  background: var(--bg2);
+@media (max-width: 600px) {
+  .results-body { grid-template-columns: 1fr; }
+}
+
+/* ── IMAGE CARDS ── */
+.img-card {
+  background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--radius);
   overflow: hidden;
-  transition: transform 0.2s, border-color 0.2s;
+  transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
-.image-card:hover {
+.img-card:hover {
   transform: translateY(-3px);
   border-color: var(--border2);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.4);
 }
 
-.image-card-header {
-  padding: 12px 16px;
+.img-card-header {
+  padding: 10px 14px;
   border-bottom: 1px solid var(--border);
-  font-size: 12px;
-  font-family: var(--mono);
-  color: var(--muted);
-  letter-spacing: 0.5px;
   display: flex;
   align-items: center;
   gap: 8px;
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--muted);
+  letter-spacing: 0.5px;
 }
 
-.image-card-header .dot {
+.img-dot {
   width: 8px; height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
 }
 
-.image-card img {
+.img-card img {
   width: 100%;
   display: block;
   aspect-ratio: 1;
   object-fit: cover;
+  background: var(--bg-card2);
 }
 
-/* ── METRICS ROW ── */
-.metrics-row {
+/* ── SIDEBAR PANEL ── */
+.results-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── METRIC CARDS ── */
+.metrics-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 32px;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
-@media (max-width: 700px) {
-  .metrics-row { grid-template-columns: repeat(2, 1fr); }
-}
-
-.metric-card {
-  background: var(--bg2);
+.metric {
+  background: var(--bg-card2);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 20px;
+  border-radius: var(--radius-sm);
+  padding: 14px;
   position: relative;
   overflow: hidden;
 }
 
-.metric-card::after {
+.metric::before {
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 2px;
 }
 
-.metric-card.blue::after   { background: var(--accent); }
-.metric-card.green::after  { background: var(--green); }
-.metric-card.amber::after  { background: var(--amber); }
-.metric-card.red::after    { background: var(--red); }
+.metric.c-blue::before   { background: var(--blue); }
+.metric.c-red::before    { background: var(--red); }
+.metric.c-green::before  { background: var(--green); }
+.metric.c-amber::before  { background: var(--amber); }
 
 .metric-label {
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 8px;
+}
+
+.metric-val {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.5px;
+  font-family: var(--mono);
+}
+
+.metric-sub {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 5px;
+}
+
+/* ── RISK GAUGE ── */
+.risk-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+}
+
+.risk-block-title {
   font-size: 11px;
   font-family: var(--mono);
   color: var(--muted);
   letter-spacing: 0.5px;
-  margin-bottom: 10px;
   text-transform: uppercase;
+  margin-bottom: 14px;
 }
 
-.metric-value {
-  font-family: var(--display);
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: -1px;
-  line-height: 1;
-}
-
-.metric-sub {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 6px;
-}
-
-/* ── RISK BAR ── */
-.risk-section {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 28px 32px;
-  margin-bottom: 32px;
-}
-
-.risk-section h3 {
-  font-family: var(--display);
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 20px;
-  color: var(--muted);
-  letter-spacing: 0.3px;
-}
-
-.risk-bar-track {
-  background: var(--bg3);
+.risk-track {
+  height: 10px;
+  background: var(--bg-card2);
   border-radius: 99px;
-  height: 12px;
   position: relative;
   overflow: hidden;
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 
-.risk-bar-fill {
+/* zone segments */
+.risk-track::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    rgba(34,197,94,0.25)  0%  35%,
+    rgba(245,158,11,0.25) 35% 65%,
+    rgba(249,115,22,0.25) 65% 85%,
+    rgba(239,68,68,0.25)  85% 100%
+  );
+}
+
+.risk-fill {
   height: 100%;
   border-radius: 99px;
-  transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: width 1.4s cubic-bezier(0.16,1,0.3,1);
   width: 0%;
+  position: relative;
+  z-index: 1;
 }
 
-.risk-labels {
+.risk-ticks {
   display: flex;
   justify-content: space-between;
+  font-size: 10px;
   font-family: var(--mono);
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+
+.risk-legend {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.risk-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: 11px;
   color: var(--muted);
 }
 
-.risk-zones {
+.risk-legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── RECOMMENDATION ── */
+.rec-block {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  border-left: 3px solid var(--blue);
+  transition: border-left-color 0.3s;
+}
+
+.rec-label {
+  font-size: 10px;
+  font-family: var(--mono);
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 8px;
+}
+
+.rec-text {
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.7;
+}
+
+/* ── ACTIONS ── */
+.actions-row {
   display: flex;
+  align-items: center;
   gap: 12px;
   margin-top: 20px;
   flex-wrap: wrap;
 }
 
-.risk-zone {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.risk-zone-dot {
-  width: 10px; height: 10px;
-  border-radius: 50%;
-}
-
-/* ── RECOMMENDATION ── */
-.recommendation {
-  background: var(--bg3);
-  border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  border-radius: 0 12px 12px 0;
-  padding: 16px 20px;
-  font-size: 14px;
-  line-height: 1.7;
-  color: #c9d1d9;
-}
-
-.recommendation strong {
-  display: block;
-  font-family: var(--mono);
-  font-size: 11px;
-  color: var(--muted);
-  letter-spacing: 0.5px;
-  margin-bottom: 6px;
-}
-
-/* ── RESET BTN ── */
 .reset-btn {
-  margin-top: 32px;
-  padding: 11px 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 20px;
   background: transparent;
-  color: var(--muted);
+  color: var(--text2);
   border: 1px solid var(--border2);
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   font-family: var(--sans);
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
 }
 
-.reset-btn:hover { color: var(--text); border-color: var(--text); }
+.reset-btn:hover {
+  color: var(--text);
+  border-color: var(--border3);
+  background: var(--bg-hover);
+}
 
-/* ── ERROR ── */
-#error-box {
-  display: none;
-  background: rgba(231,76,60,0.1);
-  border: 1px solid rgba(231,76,60,0.3);
-  border-radius: 12px;
-  padding: 16px 20px;
-  color: #ff6b6b;
-  font-size: 14px;
-  margin-top: 16px;
+.disclaimer {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 3px 0;
 }
 
 /* ── FOOTER ── */
 footer {
   position: relative;
   z-index: 1;
-  text-align: center;
-  padding: 32px;
-  color: var(--muted);
+  padding: 28px 32px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-left {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+}
+
+.footer-left span { color: var(--blue); }
+
+.footer-center {
   font-size: 12px;
   font-family: var(--mono);
-  border-top: 1px solid var(--border);
+  color: var(--muted);
+  text-align: center;
 }
+
+.footer-right {
+  display: flex;
+  gap: 8px;
+}
+
+.footer-chip {
+  padding: 4px 10px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  font-size: 11px;
+  font-family: var(--mono);
+  color: var(--muted);
+}
+
+/* ── UTILITY ── */
+.tag { display: inline-flex; align-items: center; }
 </style>
 </head>
 <body>
 
+<!-- HEADER -->
 <header>
-  <div class="logo-icon">🫁</div>
-  <div class="logo-text">Pneumo<span>Scan</span></div>
-  <div class="header-badge">ConvNeXt-Base · Grad-CAM · DDPM</div>
+  <div class="header-left">
+    <div class="logo">🫁</div>
+    <div class="logo-text">Pneumo<span>Scan</span></div>
+  </div>
+
+  <div class="header-center">
+    <div class="nav-pill active"><div class="nav-dot"></div>Analysis</div>
+    <div class="nav-pill">Model Info</div>
+    <div class="nav-pill">Results</div>
+  </div>
+
+  <div class="header-right">
+    <div class="status-chip">
+      <div class="status-dot"></div>
+      GPU READY
+    </div>
+  </div>
 </header>
 
-<main>
+<!-- PAGE -->
+<div class="page">
 
   <!-- HERO -->
   <div class="hero">
-    <h1>AI-Powered<br/><em>Pneumonia Detection</em></h1>
-    <p>Upload a chest X-ray for instant analysis using ConvNeXt deep learning with Grad-CAM visualisation and clinical risk scoring.</p>
-    <div class="stats">
-      <div class="stat"><div class="stat-dot"></div> 95.2% Test Accuracy</div>
-      <div class="stat"><div class="stat-dot" style="background:var(--accent);box-shadow:0 0 6px var(--accent)"></div> AUC-ROC 0.987</div>
-      <div class="stat"><div class="stat-dot" style="background:var(--amber);box-shadow:0 0 6px var(--amber)"></div> RTX A2000 · GPU Inference</div>
+    <div class="hero-tag">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="5" stroke="#4f8ef7" stroke-width="1.5"/><path d="M6 3v3l2 1" stroke="#4f8ef7" stroke-width="1.5" stroke-linecap="round"/></svg>
+      ConvNeXt-Base · Grad-CAM · DDPM Synthesis
+    </div>
+    <h1>Clinical <span class="gradient">Chest X-Ray</span><br/>Pneumonia Detection</h1>
+    <p>Upload a chest radiograph for instant AI-powered analysis with visual attention maps and clinical risk stratification.</p>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-val">95.2%</div>
+        <div class="hero-stat-label">Test Accuracy</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">0.987</div>
+        <div class="hero-stat-label">AUC-ROC</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">5,216</div>
+        <div class="hero-stat-label">Training Images</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">&lt; 1s</div>
+        <div class="hero-stat-label">Inference Time</div>
+      </div>
     </div>
   </div>
 
-  <!-- UPLOAD -->
-  <div class="upload-section">
-    <div class="drop-zone" id="drop-zone">
-      <span class="upload-icon">🩻</span>
-      <h3>Drop your chest X-ray here</h3>
-      <p>Supports JPEG, PNG, DICOM-exported images · Max 20MB</p>
-      <button class="browse-btn" onclick="document.getElementById('file-input').click()">
-        Browse Files
-      </button>
-      <input type="file" id="file-input" accept="image/*"/>
+  <!-- MAIN PANEL -->
+  <div class="main-panel" id="main-panel">
+
+    <!-- LEFT: UPLOAD -->
+    <div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-icon">📤</span>
+          <span class="card-title">Upload X-Ray Image</span>
+        </div>
+        <div class="card-body">
+          <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+            <div class="upload-icon-wrap">🩻</div>
+            <h3>Drop your chest X-ray here</h3>
+            <p>or click to browse from your device</p>
+            <button class="browse-btn" onclick="event.stopPropagation(); document.getElementById('file-input').click()">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M7 1v8M4 4l3-3 3 3M2 11h10" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              Choose File
+            </button>
+            <div class="format-row">
+              <span class="fmt-badge">JPEG</span>
+              <span class="fmt-badge">PNG</span>
+              <span class="fmt-badge">BMP</span>
+              <span class="fmt-badge">Max 20 MB</span>
+            </div>
+            <input type="file" id="file-input" accept="image/*"/>
+          </div>
+
+          <div id="preview-section">
+            <div class="preview-card">
+              <img class="preview-thumb" id="preview-thumb" src="" alt="preview"/>
+              <div class="preview-info">
+                <div class="preview-name" id="preview-name">—</div>
+                <div class="preview-meta" id="preview-meta">—</div>
+              </div>
+              <button class="analyze-btn" id="analyze-btn" onclick="runAnalysis()">
+                Analyse
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 7h8M8 4l3 3-3 3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+            <div id="error-box">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" stroke="#fca5a5" stroke-width="1.5"/><path d="M7 4v3M7 9.5h.01" stroke="#fca5a5" stroke-width="1.5" stroke-linecap="round"/></svg>
+              <span id="error-text">Error</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div id="preview-section">
-      <div class="preview-card">
-        <img class="preview-thumb" id="preview-thumb" src="" alt="preview"/>
-        <div class="preview-info">
-          <div class="preview-name" id="preview-name">—</div>
-          <div class="preview-meta" id="preview-meta">—</div>
+    <!-- RIGHT: HOW IT WORKS + MODEL -->
+    <div style="display:flex;flex-direction:column;gap:16px;">
+      <div class="card">
+        <div class="card-header">
+          <span class="card-icon">⚙️</span>
+          <span class="card-title">How It Works</span>
         </div>
-        <button class="analyze-btn" id="analyze-btn" onclick="runAnalysis()">
-          Run Analysis →
+        <div class="card-body" style="padding-top:4px;padding-bottom:4px;">
+          <div class="steps">
+            <div class="step-item">
+              <div class="step-num">01</div>
+              <div class="step-content">
+                <h4>Preprocessing &amp; CLAHE</h4>
+                <p>Image is resized to 224×224, normalised with ImageNet statistics and contrast-enhanced via CLAHE.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">02</div>
+              <div class="step-content">
+                <h4>ConvNeXt-Base Inference</h4>
+                <p>ImageNet-22k pretrained backbone classifies the X-ray into NORMAL or PNEUMONIA.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">03</div>
+              <div class="step-content">
+                <h4>Grad-CAM Visualisation</h4>
+                <p>Gradient-weighted class activation maps highlight the regions that drove the prediction.</p>
+              </div>
+            </div>
+            <div class="step-item">
+              <div class="step-num">04</div>
+              <div class="step-content">
+                <h4>Risk Stratification</h4>
+                <p>Risk score = 0.7 × P(Pneumonia) + 0.3 × CAM intensity → LOW / MODERATE / HIGH / CRITICAL.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <span class="card-icon">🧠</span>
+          <span class="card-title">Model Architecture</span>
+        </div>
+        <div class="model-badges">
+          <span class="model-badge highlight">ConvNeXt-Base</span>
+          <span class="model-badge highlight">Grad-CAM</span>
+          <span class="model-badge highlight">DDPM</span>
+          <span class="model-badge">AMP Training</span>
+          <span class="model-badge">AdamW + Cosine LR</span>
+          <span class="model-badge">Mixup α=0.4</span>
+          <span class="model-badge">Label Smoothing</span>
+          <span class="model-badge">RTX A2000 · 12 GB</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- LOADING (full width) -->
+    <div id="loading">
+      <div class="loading-card">
+        <div class="spinner-wrap">
+          <div class="spinner-ring"></div>
+          <div class="spinner-inner"></div>
+        </div>
+        <div class="loading-title">Analysing X-Ray</div>
+        <div class="loading-sub">Running ConvNeXt inference with Grad-CAM...</div>
+
+        <div class="pipeline-steps">
+          <div class="pipe-step" id="ps1">
+            <div class="pipe-dot"></div>
+            <div class="pipe-label">Preprocess</div>
+          </div>
+          <div class="pipe-step" id="ps2">
+            <div class="pipe-dot"></div>
+            <div class="pipe-label">ConvNeXt</div>
+          </div>
+          <div class="pipe-step" id="ps3">
+            <div class="pipe-dot"></div>
+            <div class="pipe-label">Grad-CAM</div>
+          </div>
+          <div class="pipe-step" id="ps4">
+            <div class="pipe-dot"></div>
+            <div class="pipe-label">Risk Score</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESULTS (full width) -->
+    <div id="results">
+
+      <div class="results-top">
+        <h2>Analysis Complete</h2>
+        <div class="verdict" id="verdict-badge">—</div>
+        <div style="margin-left:auto; font-size:12px; color:var(--muted); font-family:var(--mono);" id="result-timestamp"></div>
+      </div>
+
+      <div class="results-body">
+        <!-- 4 image cards -->
+        <div class="img-card">
+          <div class="img-card-header">
+            <div class="img-dot" style="background:#4f8ef7"></div>ORIGINAL
+          </div>
+          <img id="img-original" src="" alt="Original X-Ray"/>
+        </div>
+        <div class="img-card">
+          <div class="img-card-header">
+            <div class="img-dot" style="background:#f59e0b"></div>GRAD-CAM OVERLAY
+          </div>
+          <img id="img-overlay" src="" alt="Overlay"/>
+        </div>
+        <div class="img-card">
+          <div class="img-card-header">
+            <div class="img-dot" style="background:#ef4444"></div>ACTIVATION MAP
+          </div>
+          <img id="img-heatmap" src="" alt="Heatmap"/>
+        </div>
+        <div class="img-card">
+          <div class="img-card-header">
+            <div class="img-dot" style="background:#22c55e"></div>RISK PANEL
+          </div>
+          <img id="img-risk" src="" alt="Risk Panel"/>
+        </div>
+
+        <!-- Sidebar panel -->
+        <div class="results-sidebar">
+          <div class="metrics-grid">
+            <div class="metric c-blue">
+              <div class="metric-label">Risk Score</div>
+              <div class="metric-val" id="m-risk" style="color:var(--blue)">—</div>
+              <div class="metric-sub" id="m-level">—</div>
+            </div>
+            <div class="metric c-red">
+              <div class="metric-label">Pneumonia Prob</div>
+              <div class="metric-val" id="m-pneumo" style="color:var(--red)">—</div>
+              <div class="metric-sub">model output</div>
+            </div>
+            <div class="metric c-green">
+              <div class="metric-label">Normal Prob</div>
+              <div class="metric-val" id="m-normal" style="color:var(--green)">—</div>
+              <div class="metric-sub">model output</div>
+            </div>
+            <div class="metric c-amber">
+              <div class="metric-label">Confidence</div>
+              <div class="metric-val" id="m-conf" style="color:var(--amber); font-size:20px">—</div>
+              <div class="metric-sub" id="m-pred">—</div>
+            </div>
+          </div>
+
+          <div class="risk-block">
+            <div class="risk-block-title">Risk Stratification</div>
+            <div class="risk-track">
+              <div class="risk-fill" id="risk-bar"></div>
+            </div>
+            <div class="risk-ticks">
+              <span>0%</span><span>35%</span><span>65%</span><span>85%</span><span>100%</span>
+            </div>
+            <div class="risk-legend">
+              <div class="risk-legend-item"><div class="risk-legend-dot" style="background:#22c55e"></div>LOW 0–35%</div>
+              <div class="risk-legend-item"><div class="risk-legend-dot" style="background:#f59e0b"></div>MODERATE 35–65%</div>
+              <div class="risk-legend-item"><div class="risk-legend-dot" style="background:#f97316"></div>HIGH 65–85%</div>
+              <div class="risk-legend-item"><div class="risk-legend-dot" style="background:#ef4444"></div>CRITICAL 85–100%</div>
+            </div>
+          </div>
+
+          <div class="rec-block" id="rec-block">
+            <div class="rec-label">Clinical Recommendation</div>
+            <div class="rec-text" id="rec-text">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="actions-row">
+        <button class="reset-btn" onclick="resetUI()">
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><path d="M2 6.5A4.5 4.5 0 1 0 6.5 2H4M4 2L2 4M4 2l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Analyse Another Image
         </button>
+        <div class="disclaimer">⚠ For research &amp; educational purposes only. Not a substitute for clinical diagnosis.</div>
       </div>
-      <div id="error-box"></div>
-    </div>
-  </div>
 
-  <!-- LOADING -->
-  <div id="loading">
-    <div class="spinner"></div>
-    <p style="color:var(--muted);font-size:14px;">Analysing X-ray...</p>
-    <div class="loading-steps">
-      <div class="loading-step" id="step1">⬡ Preprocessing &amp; CLAHE enhancement</div>
-      <div class="loading-step" id="step2">⬡ ConvNeXt-Base forward pass</div>
-      <div class="loading-step" id="step3">⬡ Computing Grad-CAM gradients</div>
-      <div class="loading-step" id="step4">⬡ Generating risk assessment</div>
-    </div>
-  </div>
+    </div><!-- /results -->
 
-  <!-- RESULTS -->
-  <div id="results">
+  </div><!-- /main-panel -->
+</div><!-- /page -->
 
-    <div class="results-header">
-      <h2>Analysis Complete</h2>
-      <div class="verdict-badge" id="verdict-badge">—</div>
-    </div>
-
-    <!-- IMAGE GRID -->
-    <div class="image-grid">
-      <div class="image-card">
-        <div class="image-card-header">
-          <div class="dot" style="background:#58a6ff"></div>
-          ORIGINAL X-RAY
-        </div>
-        <img id="img-original" src="" alt="Original"/>
-      </div>
-      <div class="image-card">
-        <div class="image-card-header">
-          <div class="dot" style="background:#f39c12"></div>
-          GRAD-CAM OVERLAY
-        </div>
-        <img id="img-overlay" src="" alt="Overlay"/>
-      </div>
-      <div class="image-card">
-        <div class="image-card-header">
-          <div class="dot" style="background:#e74c3c"></div>
-          ACTIVATION MAP
-        </div>
-        <img id="img-heatmap" src="" alt="Heatmap"/>
-      </div>
-      <div class="image-card">
-        <div class="image-card-header">
-          <div class="dot" style="background:#2ecc71"></div>
-          RISK DASHBOARD
-        </div>
-        <img id="img-risk" src="" alt="Risk"/>
-      </div>
-    </div>
-
-    <!-- METRICS -->
-    <div class="metrics-row">
-      <div class="metric-card blue">
-        <div class="metric-label">RISK SCORE</div>
-        <div class="metric-value" id="m-risk" style="color:var(--accent)">—</div>
-        <div class="metric-sub" id="m-level">—</div>
-      </div>
-      <div class="metric-card red">
-        <div class="metric-label">PNEUMONIA PROB</div>
-        <div class="metric-value" id="m-pneumo" style="color:var(--red)">—</div>
-        <div class="metric-sub">model confidence</div>
-      </div>
-      <div class="metric-card green">
-        <div class="metric-label">NORMAL PROB</div>
-        <div class="metric-value" id="m-normal" style="color:var(--green)">—</div>
-        <div class="metric-sub">model confidence</div>
-      </div>
-      <div class="metric-card amber">
-        <div class="metric-label">PREDICTION</div>
-        <div class="metric-value" id="m-pred" style="font-size:20px;padding-top:6px">—</div>
-        <div class="metric-sub" id="m-conf">—</div>
-      </div>
-    </div>
-
-    <!-- RISK BAR -->
-    <div class="risk-section">
-      <h3>RISK STRATIFICATION</h3>
-      <div class="risk-bar-track">
-        <div class="risk-bar-fill" id="risk-bar"></div>
-      </div>
-      <div class="risk-labels">
-        <span>0%</span><span>35%</span><span>65%</span><span>85%</span><span>100%</span>
-      </div>
-      <div class="risk-zones">
-        <div class="risk-zone"><div class="risk-zone-dot" style="background:#2ecc71"></div>LOW (0–35%)</div>
-        <div class="risk-zone"><div class="risk-zone-dot" style="background:#f39c12"></div>MODERATE (35–65%)</div>
-        <div class="risk-zone"><div class="risk-zone-dot" style="background:#e67e22"></div>HIGH (65–85%)</div>
-        <div class="risk-zone"><div class="risk-zone-dot" style="background:#e74c3c"></div>CRITICAL (85–100%)</div>
-      </div>
-    </div>
-
-    <!-- RECOMMENDATION -->
-    <div class="recommendation">
-      <strong>CLINICAL RECOMMENDATION</strong>
-      <span id="rec-text">—</span>
-    </div>
-
-    <button class="reset-btn" onclick="resetUI()">← Analyse Another Image</button>
-  </div>
-
-</main>
-
+<!-- FOOTER -->
 <footer>
-  PneumoScan · ConvNeXt-Base + DDPM + Grad-CAM · For research purposes only · Not a substitute for clinical diagnosis
+  <div class="footer-left">Pneumo<span>Scan</span></div>
+  <div class="footer-center">For research purposes only · Not a substitute for clinical diagnosis</div>
+  <div class="footer-right">
+    <span class="footer-chip">ConvNeXt-Base</span>
+    <span class="footer-chip">Grad-CAM</span>
+    <span class="footer-chip">DDPM</span>
+  </div>
 </footer>
 
 <script>
 let selectedFile = null;
 
-// ── DRAG & DROP ───────────────────────────────────────────────
+/* ── DRAG & DROP ── */
 const dropZone = document.getElementById('drop-zone');
-
-dropZone.addEventListener('dragover', e => {
-  e.preventDefault();
-  dropZone.classList.add('drag-over');
-});
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
 dropZone.addEventListener('drop', e => {
   e.preventDefault();
@@ -749,7 +1313,6 @@ dropZone.addEventListener('drop', e => {
   const f = e.dataTransfer.files[0];
   if (f && f.type.startsWith('image/')) setFile(f);
 });
-
 document.getElementById('file-input').addEventListener('change', e => {
   if (e.target.files[0]) setFile(e.target.files[0]);
 });
@@ -757,112 +1320,109 @@ document.getElementById('file-input').addEventListener('change', e => {
 function setFile(f) {
   selectedFile = f;
   const reader = new FileReader();
-  reader.onload = ev => {
-    document.getElementById('preview-thumb').src = ev.target.result;
-  };
+  reader.onload = ev => { document.getElementById('preview-thumb').src = ev.target.result; };
   reader.readAsDataURL(f);
   document.getElementById('preview-name').textContent = f.name;
-  document.getElementById('preview-meta').textContent =
-    `${(f.size / 1024).toFixed(1)} KB · ${f.type}`;
+  document.getElementById('preview-meta').textContent = `${(f.size/1024).toFixed(1)} KB · ${f.type}`;
   document.getElementById('preview-section').style.display = 'block';
   document.getElementById('results').style.display = 'none';
-  document.getElementById('error-box').style.display = 'none';
+  hide('error-box');
 }
 
-// ── LOADING ANIMATION ─────────────────────────────────────────
-function animateSteps() {
-  const steps = ['step1','step2','step3','step4'];
-  steps.forEach((id, i) => {
-    setTimeout(() => {
-      document.getElementById(id).classList.add('active');
-    }, i * 800);
-  });
+/* ── PIPELINE ANIMATION ── */
+let pipeTimer = null;
+function startPipeline() {
+  const steps = ['ps1','ps2','ps3','ps4'];
+  let i = 0;
+  steps.forEach(id => { document.getElementById(id).className = 'pipe-step'; });
+  pipeTimer = setInterval(() => {
+    if (i > 0) document.getElementById(steps[i-1]).classList.replace('active','done') ||
+                document.getElementById(steps[i-1]).classList.add('done');
+    if (i < steps.length) { document.getElementById(steps[i]).classList.add('active'); i++; }
+    else clearInterval(pipeTimer);
+  }, 900);
+}
+function resetPipeline() {
+  clearInterval(pipeTimer);
+  ['ps1','ps2','ps3','ps4'].forEach(id => { document.getElementById(id).className = 'pipe-step'; });
 }
 
-// ── ANALYSIS ──────────────────────────────────────────────────
+/* ── ANALYSIS ── */
 async function runAnalysis() {
   if (!selectedFile) return;
-
   const btn = document.getElementById('analyze-btn');
   btn.disabled = true;
-  document.getElementById('loading').style.display = 'block';
+  show('loading');
   document.getElementById('results').style.display = 'none';
-  document.getElementById('error-box').style.display = 'none';
-  animateSteps();
+  hide('error-box');
+  startPipeline();
 
-  const formData = new FormData();
-  formData.append('file', selectedFile);
+  const fd = new FormData();
+  fd.append('file', selectedFile);
 
   try {
-    const resp = await fetch('/predict', { method: 'POST', body: formData });
+    const resp = await fetch('/predict', { method: 'POST', body: fd });
     const data = await resp.json();
-
-    if (!resp.ok) {
-      throw new Error(data.detail || 'Server error');
-    }
-
+    if (!resp.ok) throw new Error(data.detail || 'Server error');
     showResults(data);
-  } catch (err) {
-    document.getElementById('error-box').style.display = 'block';
-    document.getElementById('error-box').textContent = '⚠ ' + err.message;
+  } catch(err) {
+    const eb = document.getElementById('error-box');
+    document.getElementById('error-text').textContent = err.message;
+    eb.style.display = 'flex';
   } finally {
-    document.getElementById('loading').style.display = 'none';
+    hide('loading');
+    resetPipeline();
     btn.disabled = false;
-    ['step1','step2','step3','step4'].forEach(id =>
-      document.getElementById(id).classList.remove('active'));
   }
 }
 
-// ── RENDER RESULTS ────────────────────────────────────────────
+/* ── SHOW RESULTS ── */
 function showResults(data) {
-  // Images
   document.getElementById('img-original').src = 'data:image/png;base64,' + data.images.original;
   document.getElementById('img-overlay').src  = 'data:image/png;base64,' + data.images.overlay;
   document.getElementById('img-heatmap').src  = 'data:image/png;base64,' + data.images.heatmap;
   document.getElementById('img-risk').src     = 'data:image/png;base64,' + data.images.risk;
 
-  // Verdict badge
   const badge = document.getElementById('verdict-badge');
   badge.textContent = data.prediction;
-  badge.className = 'verdict-badge ' + data.prediction;
+  badge.className   = 'verdict ' + data.prediction;
 
-  // Metrics
   document.getElementById('m-risk').textContent   = data.risk_score + '%';
   document.getElementById('m-level').textContent  = data.risk_level;
   document.getElementById('m-pneumo').textContent = data.pneumonia_prob + '%';
   document.getElementById('m-normal').textContent = data.normal_prob + '%';
+  document.getElementById('m-conf').textContent   = data.confidence + '%';
   document.getElementById('m-pred').textContent   = data.prediction;
-  document.getElementById('m-conf').textContent   = data.confidence + '% confidence';
-
-  // Risk color overrides
-  document.getElementById('m-risk').style.color = data.risk_color;
-  document.getElementById('m-level').textContent = data.risk_level;
-
-  // Risk bar
-  const bar = document.getElementById('risk-bar');
-  bar.style.background = data.risk_color;
-  bar.style.boxShadow  = `0 0 12px ${data.risk_color}88`;
-  setTimeout(() => { bar.style.width = data.risk_score + '%'; }, 100);
-
-  // Recommendation
   document.getElementById('rec-text').textContent = data.recommendation;
+  document.getElementById('result-timestamp').textContent = new Date().toLocaleTimeString();
 
-  // Left border color on recommendation
-  document.querySelector('.recommendation').style.borderLeftColor = data.risk_color;
+  /* apply risk colour */
+  document.getElementById('m-risk').style.color  = data.risk_color;
+  document.getElementById('m-conf').style.color  = data.risk_color;
+  document.getElementById('rec-block').style.borderLeftColor = data.risk_color;
 
-  document.getElementById('results').style.display = 'block';
+  const bar = document.getElementById('risk-bar');
+  bar.style.background  = `linear-gradient(90deg, ${data.risk_color}99, ${data.risk_color})`;
+  bar.style.boxShadow   = `0 0 10px ${data.risk_color}66`;
+  setTimeout(() => { bar.style.width = data.risk_score + '%'; }, 120);
+
+  show('results', 'block');
   document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-// ── RESET ─────────────────────────────────────────────────────
+/* ── RESET ── */
 function resetUI() {
   selectedFile = null;
   document.getElementById('preview-section').style.display = 'none';
   document.getElementById('results').style.display = 'none';
   document.getElementById('file-input').value = '';
   document.getElementById('risk-bar').style.width = '0%';
+  hide('error-box');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
+
+function show(id, display = 'block') { document.getElementById(id).style.display = display; }
+function hide(id)                    { document.getElementById(id).style.display = 'none'; }
 </script>
 </body>
 </html>
